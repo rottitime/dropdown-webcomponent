@@ -11,13 +11,19 @@ template.innerHTML = html`
     ul[role='listbox'] {
       --listbox-height: 370px;
       border: 1px solid #ccc;
+      padding: 10px;
       overflow-y: auto;
       max-height: var(--listbox-height);
+      & li {
+        cursor: pointer;
+        list-style-type: none;
+        &:hover {
+          background-color: #f1f1f1;
+        }
+      }
     }
   </style>
   <div class="wrapper">
-    <input type="text" />
-
     <label for="demo-simple-select">111111</label>
 
     <div
@@ -29,7 +35,7 @@ template.innerHTML = html`
       aria-labelledby="demo-simple-select-label demo-simple-select"
       id="demo-simple-select"
     >
-      dededeed
+      <input type="text" />
     </div>
 
     <ul
@@ -51,27 +57,29 @@ class NgSelect extends HTMLElement {
   constructor() {
     super()
     const shadow = this.attachShadow({ mode: 'open' })
-
     shadow.append(template.content.cloneNode(true))
 
     const id = this.id || self.crypto.randomUUID()
     const labelId = `${id}-label`
+    const listboxId = `${id}-listbox`
 
     this.input = shadow.querySelector('input')!
-    this.listbox = shadow.querySelector('[role=listbox]')!
-    this.combobox = shadow.querySelector('[role=combobox]')!
-
+    this.input.setAttribute('aria-autocomplete', 'list')
+    this.input.setAttribute('aria-controls', listboxId)
     this.input.setAttribute(
       'placeholder',
       this.getAttribute('placeholder') || ''
     )
     this.input.setAttribute('aria-labelledby', labelId)
     this.input.setAttribute('id', id)
-
     this.input.before(this.createLabel(labelId))
 
-    this.setOptions(this.getOptions())
+    this.listbox = shadow.querySelector('[role=listbox]')!
+    this.listbox.id = listboxId
 
+    this.combobox = shadow.querySelector('[role=combobox]')!
+
+    this.setOptions(this.getOptions())
     this.setSelected(
       this.getOptions()
         .filter((o) => o.selected)

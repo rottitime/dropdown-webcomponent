@@ -26,6 +26,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
           <option value="jeep">Jeep</option>
           <option value="ram">Ram</option>
           <option value="buick">Buick</option>
+          <option value="cadillac">Cadillac</option>
 
 
 			</ng-select>
