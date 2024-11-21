@@ -28,7 +28,7 @@ template.innerHTML = `
 
 class NgSelect extends HTMLElement {
   input: HTMLInputElement | null = null
-  selected: Selected
+  selected: Selected = {}
 
   constructor() {
     super()
@@ -40,7 +40,10 @@ class NgSelect extends HTMLElement {
     const labelId = `${id}-label`
 
     this.input = shadow.querySelector('input')!
-    this.input.setAttribute('placeholder', this.getAttribute('placeholder') || '')
+    this.input.setAttribute(
+      'placeholder',
+      this.getAttribute('placeholder') || ''
+    )
     this.input.setAttribute('aria-labelledby', labelId)
     this.input.setAttribute('id', id)
 
@@ -57,7 +60,7 @@ class NgSelect extends HTMLElement {
     return Array.from(this.querySelectorAll('option')).map((o) => ({
       value: o.getAttribute('value') || '',
       text: o.innerHTML,
-      selected: o.hasAttribute('selected')
+      selected: o.hasAttribute('selected'),
     }))
   }
 

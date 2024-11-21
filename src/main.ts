@@ -1,8 +1,6 @@
 import './style.css'
 import './components/dropdown'
 
-import { setupCounter } from './counter.ts'
-
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
     		<ng-select name="cars" id="cars" placeholder="someting working" multiple label="This is my label">
@@ -13,5 +11,3 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 			</ng-select>
   </div>
 `
-
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
