@@ -7,13 +7,28 @@ template.innerHTML = html`
   <style>
     .wrapper {
       position: relative;
+      display: inline-block;
     }
-    ul[role='listbox'] {
+    label {
+      display: block;
+    }
+    ul {
       --listbox-height: 370px;
+      margin: 0;
       border: 1px solid #ccc;
       padding: 10px;
       overflow-y: auto;
       max-height: var(--listbox-height);
+      position: absolute;
+      left: 0;
+      width: 100%;
+      background-color: #fff;
+      color: #000;
+
+      &[aria-hidden='true'] {
+        display: none;
+      }
+
       & li {
         cursor: pointer;
         list-style-type: none;
@@ -24,8 +39,6 @@ template.innerHTML = html`
     }
   </style>
   <div class="wrapper">
-    <label for="demo-simple-select">111111</label>
-
     <div
       tabindex="0"
       role="combobox"
@@ -41,6 +54,7 @@ template.innerHTML = html`
     <ul
       role="listbox"
       tabindex="-1"
+      aria-hidden="true"
       aria-labelledby="demo-multiple-name-label"
       aria-multiselectable="true"
       id=":Rilalbh9l6kud6:"
@@ -59,32 +73,9 @@ class NgSelect extends HTMLElement {
     const shadow = this.attachShadow({ mode: 'open' })
     shadow.append(template.content.cloneNode(true))
 
-    const id = this.id || self.crypto.randomUUID()
-    const labelId = `${id}-label`
-    const listboxId = `${id}-listbox`
-
     this.input = shadow.querySelector('input')!
-    this.input.setAttribute('aria-autocomplete', 'list')
-    this.input.setAttribute('aria-controls', listboxId)
-    this.input.setAttribute(
-      'placeholder',
-      this.getAttribute('placeholder') || ''
-    )
-    this.input.setAttribute('aria-labelledby', labelId)
-    this.input.setAttribute('id', id)
-    this.input.before(this.createLabel(labelId))
-
-    this.listbox = shadow.querySelector('[role=listbox]')!
-    this.listbox.id = listboxId
-
     this.combobox = shadow.querySelector('[role=combobox]')!
-
-    this.setOptions(this.getOptions())
-    this.setSelected(
-      this.getOptions()
-        .filter((o) => o.selected)
-        .reduce((acc, o) => ({ ...acc, [o.value || '']: o.text }), {})
-    )
+    this.listbox = shadow.querySelector('[role=listbox]')!
   }
 
   private getOptions(): Option[] {
@@ -121,12 +112,12 @@ class NgSelect extends HTMLElement {
     this.input!.value = Object.values(this.selected).join(', ')
   }
 
-  private getSelected(): Selected[] {
-    return []
-  }
+  // private getSelected(): Selected[] {
+  //   return []
+  // }
 
   connectedCallback() {
-    // this.render()
+    this.render()
   }
 
   //   static get observedAttributes() {
@@ -137,23 +128,47 @@ class NgSelect extends HTMLElement {
   //     console.log(`Attribute ${name} has changed.`, { oldValue, newValue })
   //   }
 
-  //   render() {
-  //     // const name = this.getAttribute('name') || ''
-  //     // const id = this.getAttribute('id') || ''
-  //     // const multiple = this.hasAttribute('multiple') ? 'multiple' : ''
-  //     // this.shadowRoot.innerHTML = `
-  //     //         <style>
-  //     //             select {
-  //     //                 width: 100%;
-  //     //                 padding: 8px;
-  //     //                 font-size: 16px;
-  //     //             }
-  //     //         </style>
-  //     //         <select name="${name}" id="${id}" ${multiple}>
-  //     //             ${this.innerHTML}
-  //     //         </select>
-  //     //     `
-  //   }
+  render() {
+    const id = this.id || self.crypto.randomUUID()
+    const labelId = `${id}-label`
+    const listboxId = `${id}-listbox`
+
+    const { input, listbox } = this
+
+    if (!input || !listbox) return
+
+    input.setAttribute('aria-autocomplete', 'list')
+    input.setAttribute('aria-controls', listboxId)
+    input.setAttribute('placeholder', this.getAttribute('placeholder') || '')
+    input.setAttribute('aria-labelledby', labelId)
+    input.setAttribute('id', id)
+    input.before(this.createLabel(labelId))
+
+    this.setAttribute(
+      'aria-multiselectable',
+      String(
+        this.hasAttribute('multiple') &&
+          this.getAttribute('multiple') !== String(false)
+      )
+    )
+    listbox.setAttribute('id', listboxId)
+
+    this.setOptions(this.getOptions())
+    this.setSelected(
+      this.getOptions()
+        .filter((o) => o.selected)
+        .reduce((acc, o) => ({ ...acc, [o.value || '']: o.text }), {})
+    )
+
+    // events
+    input.addEventListener('focus', () => {
+      listbox.setAttribute('aria-hidden', 'false')
+    })
+
+    input.addEventListener('blur', () => {
+      listbox.setAttribute('aria-hidden', 'true')
+    })
+  }
 }
 
 customElements.define('ng-select', NgSelect)
