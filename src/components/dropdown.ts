@@ -1,28 +1,42 @@
 type Option = { value: string; text: string; selected: boolean }
 type Selected = Record<string, string>
 
+const html = String.raw
 const template = document.createElement('template')
-template.innerHTML = `
+template.innerHTML = html`
   <style>
-   select {
-   width: 100%;
-   padding: 8px;
-   font-size: 16px;
-   }
-</style>
-<div class="wrapper">
-   <input type="text" />
+    .wrapper {
+      position: relative;
+    }
+    ul[role='listbox'] {
+      border: 1px solid #ccc;
+    }
+  </style>
+  <div class="wrapper">
+    <input type="text" />
 
-   <label for="demo-simple-select">111111</label>
-   
-   <div tabindex="0" role="combobox" aria-controls=":R9alal9h9l6kud6:" aria-expanded="false" aria-haspopup="listbox" aria-labelledby="demo-simple-select-label demo-simple-select" id="demo-simple-select">dededeed</div>
+    <label for="demo-simple-select">111111</label>
 
-   <div tabindex="-1">
-      <ul role="listbox" tabindex="-1" aria-labelledby="demo-multiple-name-label" aria-multiselectable="true" id=":Rilalbh9l6kud6:">
-      </ul>
-   </div>
-</div>
-    
+    <div
+      tabindex="0"
+      role="combobox"
+      aria-controls=":R9alal9h9l6kud6:"
+      aria-expanded="false"
+      aria-haspopup="listbox"
+      aria-labelledby="demo-simple-select-label demo-simple-select"
+      id="demo-simple-select"
+    >
+      dededeed
+    </div>
+
+    <ul
+      role="listbox"
+      tabindex="-1"
+      aria-labelledby="demo-multiple-name-label"
+      aria-multiselectable="true"
+      id=":Rilalbh9l6kud6:"
+    ></ul>
+  </div>
 `
 
 class NgSelect extends HTMLElement {
