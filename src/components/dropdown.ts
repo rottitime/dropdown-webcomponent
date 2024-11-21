@@ -18,8 +18,7 @@ template.innerHTML = `
    <div tabindex="0" role="combobox" aria-controls=":R9alal9h9l6kud6:" aria-expanded="false" aria-haspopup="listbox" aria-labelledby="demo-simple-select-label demo-simple-select" id="demo-simple-select">dededeed</div>
 
    <div tabindex="-1">
-      <ul class="MuiList-root MuiList-padding MuiMenu-list css-ubifyk" role="listbox" tabindex="-1" aria-labelledby="demo-multiple-name-label" aria-multiselectable="true" id=":Rilalbh9l6kud6:" style="padding-right: 0px; width: calc(100% + 0px);">
-         <li class="MuiButtonBase-root MuiMenuItem-root MuiMenuItem-gutters css-1yyq8qv" tabindex="-1" role="option" aria-selected="false" data-value="Oliver Hansen" style="font-weight: 400;">Oliver Hansen<span class="MuiTouchRipple-root css-4mb1j7"></span></li>
+      <ul role="listbox" tabindex="-1" aria-labelledby="demo-multiple-name-label" aria-multiselectable="true" id=":Rilalbh9l6kud6:">
       </ul>
    </div>
 </div>
@@ -27,7 +26,9 @@ template.innerHTML = `
 `
 
 class NgSelect extends HTMLElement {
-  input: HTMLInputElement | null = null
+  input?: HTMLInputElement
+  listbox?: HTMLUListElement
+  combobox?: HTMLDivElement
   selected: Selected = {}
 
   constructor() {
@@ -40,6 +41,9 @@ class NgSelect extends HTMLElement {
     const labelId = `${id}-label`
 
     this.input = shadow.querySelector('input')!
+    this.listbox = shadow.querySelector('[role=listbox]')!
+    this.combobox = shadow.querySelector('[role=combobox]')!
+
     this.input.setAttribute(
       'placeholder',
       this.getAttribute('placeholder') || ''
@@ -48,6 +52,8 @@ class NgSelect extends HTMLElement {
     this.input.setAttribute('id', id)
 
     this.input.before(this.createLabel(labelId))
+
+    this.setOptions(this.getOptions())
 
     this.setSelected(
       this.getOptions()
@@ -62,6 +68,19 @@ class NgSelect extends HTMLElement {
       text: o.innerHTML,
       selected: o.hasAttribute('selected'),
     }))
+  }
+
+  private setOptions(options: Option[]) {
+    this.listbox!.innerHTML = ''
+    options.forEach((o) => {
+      const li = document.createElement('li')
+      li.setAttribute('role', 'option')
+      li.setAttribute('tabindex', '-1')
+      li.setAttribute('aria-selected', o.selected ? 'true' : 'false')
+      li.setAttribute('data-value', o.value)
+      li.innerHTML = o.text
+      this.listbox!.append(li)
+    })
   }
 
   private createLabel(id: string): HTMLLabelElement {
