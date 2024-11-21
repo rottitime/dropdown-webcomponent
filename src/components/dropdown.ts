@@ -9,7 +9,10 @@ template.innerHTML = html`
       position: relative;
     }
     ul[role='listbox'] {
+      --listbox-height: 370px;
       border: 1px solid #ccc;
+      overflow-y: auto;
+      max-height: var(--listbox-height);
     }
   </style>
   <div class="wrapper">

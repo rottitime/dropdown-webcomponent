@@ -17,6 +17,15 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
           <option value="honda">Honda</option>
           <option value="mazda">Mazda</option>
           <option value="mitsubishi">Mitsubishi</option>
+          <option value="subaru">Subaru</option>
+          <option value="hyundai">Hyundai</option>
+          <option value="kia">Kia</option>
+          <option value="chevrolet">Chevrolet</option>
+          <option value="chrysler">Chrysler</option>
+          <option value="dodge">Dodge</option>
+          <option value="jeep">Jeep</option>
+          <option value="ram">Ram</option>
+          <option value="buick">Buick</option>
 
 
 			</ng-select>
