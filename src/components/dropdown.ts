@@ -1,4 +1,4 @@
-import style from './style.css?raw' // CSS as string
+import style from './style.css?raw'
 type Selected = Record<string, string>
 
 const template = document.createElement('template')
