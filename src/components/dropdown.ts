@@ -1,4 +1,5 @@
 import style from './style.css?raw'
+type Selected = Record<string, string>
 
 const template = document.createElement('template')
 template.innerHTML = /* HTML */ `
@@ -26,7 +27,7 @@ class NgSelect extends HTMLElement {
   listbox: HTMLUListElement
   combobox: HTMLDivElement
   tags: HTMLUListElement
-  selected: Record<string, string> = {}
+  selected: Selected = {}
 
   constructor() {
     super()
