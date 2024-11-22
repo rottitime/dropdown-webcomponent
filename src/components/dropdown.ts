@@ -255,6 +255,12 @@ class NgSelect extends HTMLElement {
       if (e.key === 'Enter') {
         e.preventDefault()
         this.showListbox()
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        this.focusNextListItem()
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        this.focusPreviousListItem()
       }
     })
 
@@ -284,6 +290,64 @@ class NgSelect extends HTMLElement {
         // )
       }
     })
+
+    listbox.addEventListener('keydown', (e) => {
+      const target = e.target as HTMLElement
+
+      if (e.key === 'Enter' && target.tagName === 'LI') {
+        //selected
+        e.preventDefault()
+        const selected = {
+          [target.getAttribute('data-value') || '']: target.innerHTML,
+        }
+        const isSelected = target.getAttribute('aria-selected') == 'true'
+        this.setSelected(selected, isSelected)
+      } else {
+        //navigation
+        // const focused = this.listbox!.querySelector('[tabindex="0"]')
+        // const items = Array.from(this.listbox!.querySelectorAll('li'))
+        // let index = items.indexOf(focused as HTMLLIElement)
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault()
+          this.focusNextListItem()
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault()
+          this.focusPreviousListItem()
+        }
+      }
+    })
+  }
+
+  private setListboxItemFocus(focused: number) {
+    const items = Array.from(this.listbox!.querySelectorAll('li'))
+    items.forEach((item) => item.setAttribute('tabindex', '-1'))
+    items[focused].focus()
+    items[focused].setAttribute('tabindex', '0')
+  }
+
+  private focusNextListItem() {
+    const focused = this.listbox!.querySelector('[tabindex="0"]')
+    const items = Array.from(this.listbox!.querySelectorAll('li'))
+    let index = items.indexOf(focused as HTMLLIElement)
+    if (index < items.length - 1) {
+      index++
+      items[index].focus()
+      items[index].setAttribute('tabindex', '0')
+      focused?.setAttribute('tabindex', '-1')
+    }
+  }
+
+  private focusPreviousListItem() {
+    const focused = this.listbox!.querySelector('[tabindex="0"]')
+    const items = Array.from(this.listbox!.querySelectorAll('li'))
+    let index = items.indexOf(focused as HTMLLIElement)
+    if (index > 0) {
+      index--
+      items[index].focus()
+      items[index].setAttribute('tabindex', '0')
+      focused?.setAttribute('tabindex', '-1')
+    }
   }
 }
 
