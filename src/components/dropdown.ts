@@ -89,9 +89,7 @@ template.innerHTML = html`
   <div class="wrapper">
     <ul class="tags"></ul>
     <div
-      tabindex="0"
       role="combobox"
-      aria-controls=":R9alal9h9l6kud6:"
       aria-expanded="false"
       aria-haspopup="listbox"
       aria-labelledby="demo-simple-select-label demo-simple-select"
@@ -106,7 +104,6 @@ template.innerHTML = html`
       aria-hidden="true"
       aria-labelledby="demo-multiple-name-label"
       aria-multiselectable="true"
-      id=":Rilalbh9l6kud6:"
     ></ul>
   </div>
 `
