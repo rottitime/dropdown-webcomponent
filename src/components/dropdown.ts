@@ -224,6 +224,10 @@ class NgSelect extends HTMLElement {
           const isSelected = target.getAttribute('aria-selected') == 'true'
           this.setSelected(selected, isSelected)
           break
+        case 'Escape':
+          this.hideListbox()
+          this.input.focus()
+          break
         case 'ArrowDown':
           e.preventDefault()
           this.focusNextListItem()
