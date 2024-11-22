@@ -11,13 +11,16 @@ template.innerHTML = html`
       flex-wrap: wrap;
       gap: 5px;
       padding: 5px;
+      list-style-type: none;
+      border: 1px solid #ccc;
+      background-color: #fff;
 
       &:empty {
         display: none;
       }
 
       & li {
-        background-color: #f1f1f1;
+        background-color: #666;
         padding: 5px;
         border-radius: 5px;
         cursor: pointer;
@@ -54,7 +57,7 @@ template.innerHTML = html`
       }
     }
 
-    ul {
+    ul[role='listbox'] {
       --listbox-height: 370px;
       margin: 0;
       border: 1px solid #ccc;
