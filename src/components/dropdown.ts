@@ -282,49 +282,39 @@ class NgSelect extends HTMLElement {
 
         const isSelected = target.getAttribute('aria-selected') == 'true'
         this.setSelected(selected, isSelected)
-
-        // this.dispatchEvent(
-        //   new CustomEvent('change', {
-        //     detail: { value, text },
-        //   })
-        // )
       }
     })
 
     listbox.addEventListener('keydown', (e) => {
-      const target = e.target as HTMLElement
+      const target = e.target as HTMLLIElement
 
-      if (e.key === 'Enter' && target.tagName === 'LI') {
-        //selected
-        e.preventDefault()
-        const selected = {
-          [target.getAttribute('data-value') || '']: target.innerHTML,
-        }
-        const isSelected = target.getAttribute('aria-selected') == 'true'
-        this.setSelected(selected, isSelected)
-      } else {
-        //navigation
-        // const focused = this.listbox!.querySelector('[tabindex="0"]')
-        // const items = Array.from(this.listbox!.querySelectorAll('li'))
-        // let index = items.indexOf(focused as HTMLLIElement)
-
-        if (e.key === 'ArrowDown') {
+      switch (e.key) {
+        case 'Enter':
+          e.preventDefault()
+          const selected = {
+            [target.getAttribute('data-value') || '']: target.innerHTML,
+          }
+          const isSelected = target.getAttribute('aria-selected') == 'true'
+          this.setSelected(selected, isSelected)
+          break
+        case 'ArrowDown':
           e.preventDefault()
           this.focusNextListItem()
-        } else if (e.key === 'ArrowUp') {
+          break
+        case 'ArrowUp':
           e.preventDefault()
           this.focusPreviousListItem()
-        }
+          break
       }
     })
   }
 
-  private setListboxItemFocus(focused: number) {
-    const items = Array.from(this.listbox!.querySelectorAll('li'))
-    items.forEach((item) => item.setAttribute('tabindex', '-1'))
-    items[focused].focus()
-    items[focused].setAttribute('tabindex', '0')
-  }
+  // private setListboxItemFocus(focused: number) {
+  //   const items = Array.from(this.listbox!.querySelectorAll('li'))
+  //   items.forEach((item) => item.setAttribute('tabindex', '-1'))
+  //   items[focused].focus()
+  //   items[focused].setAttribute('tabindex', '0')
+  // }
 
   private focusNextListItem() {
     const focused = this.listbox!.querySelector('[tabindex="0"]')
