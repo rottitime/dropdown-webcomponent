@@ -168,11 +168,11 @@ class NgSelect extends HTMLElement {
     const focused = this.listbox.querySelector('[tabindex="0"]')
     const items = Array.from(this.listbox.querySelectorAll('li'))
     let index = items.indexOf(focused as HTMLLIElement)
-
+    // index fallbacks
     if (direction === 'next' && index < items.length - 1) index++
     else if (direction === 'previous' && index > 0) index--
     else if (direction === 'current' && index < 0) index = 0
-
+    //set focus
     items[index].focus()
     items[index].setAttribute('tabindex', '0')
     focused?.setAttribute('tabindex', '-1')
