@@ -35,6 +35,9 @@ template.innerHTML = html`
         &:hover {
           background-color: #f1f1f1;
         }
+        &[aria-selected] {
+          background-color: #666;
+        }
       }
     }
   </style>
@@ -92,7 +95,7 @@ class NgSelect extends HTMLElement {
       const li = document.createElement('li')
       li.setAttribute('role', 'option')
       li.setAttribute('tabindex', '-1')
-      li.setAttribute('aria-selected', o.selected ? 'true' : 'false')
+      o.selected && li.setAttribute('aria-selected', 'true')
       li.setAttribute('data-value', o.value)
       li.innerHTML = o.text
       this.listbox!.append(li)
