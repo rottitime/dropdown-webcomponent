@@ -191,7 +191,8 @@ class NgSelect extends HTMLElement {
       if (e.key === 'Enter') {
         e.preventDefault()
         this.showListbox()
-        this.listbox.focus()
+        // this.listbox.focus()
+        this.focusItem('current')
       }
     })
 
@@ -230,38 +231,28 @@ class NgSelect extends HTMLElement {
           break
         case 'ArrowDown':
           e.preventDefault()
-          this.focusNextListItem()
+          this.focusItem('next')
           break
         case 'ArrowUp':
           e.preventDefault()
-          this.focusPreviousListItem()
+          this.focusItem('previous')
           break
       }
     })
   }
 
-  private focusNextListItem() {
+  private focusItem(direction: 'next' | 'previous' | 'current') {
     const focused = this.listbox.querySelector('[tabindex="0"]')
     const items = Array.from(this.listbox.querySelectorAll('li'))
     let index = items.indexOf(focused as HTMLLIElement)
-    if (index < items.length - 1) {
-      index++
-      items[index].focus()
-      items[index].setAttribute('tabindex', '0')
-      focused?.setAttribute('tabindex', '-1')
-    }
-  }
 
-  private focusPreviousListItem() {
-    const focused = this.listbox.querySelector('[tabindex="0"]')
-    const items = Array.from(this.listbox.querySelectorAll('li'))
-    let index = items.indexOf(focused as HTMLLIElement)
-    if (index > 0) {
-      index--
-      items[index].focus()
-      items[index].setAttribute('tabindex', '0')
-      focused?.setAttribute('tabindex', '-1')
-    }
+    if (direction === 'next' && index < items.length - 1) index++
+    else if (direction === 'previous' && index > 0) index--
+    else if (direction === 'current' && index < 0) index = 0
+
+    items[index].focus()
+    items[index].setAttribute('tabindex', '0')
+    focused?.setAttribute('tabindex', '-1')
   }
 
   connectedCallback() {
