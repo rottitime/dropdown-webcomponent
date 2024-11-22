@@ -1,9 +1,8 @@
 import style from './style.css?raw' // CSS as string
 type Selected = Record<string, string>
 
-const html = String.raw
 const template = document.createElement('template')
-template.innerHTML = html`
+template.innerHTML = /* HTML */ `
   <style>
     ${style}
   </style>
