@@ -12,11 +12,9 @@ template.innerHTML = html`
       list-style-type: none;
       border: 1px solid #ccc;
       background-color: #fff;
-
       &:empty {
         display: none;
       }
-
       & li {
         background-color: #666;
         padding: 5px;
@@ -32,27 +30,21 @@ template.innerHTML = html`
     label {
       display: block;
     }
-
     [role='combobox'] {
       position: relative;
-
-      /* chevron */
       &:after {
         content: '';
         position: absolute;
         right: 10px;
         top: 50%;
-        transform: translateY(-50%);
+        transform: translateY(-50%) rotate(45deg);
         border: solid #000;
         border-width: 0 2px 2px 0;
-        display: inline-block;
         padding: 3px;
-        transform: rotate(45deg);
         pointer-events: none;
       }
-
       &[aria-expanded='true']:after {
-        transform: rotate(-135deg);
+        transform: translateY(-50%) rotate(-135deg);
       }
     }
 
@@ -68,20 +60,18 @@ template.innerHTML = html`
       width: 100%;
       background-color: #fff;
       color: #000;
-
       &[aria-hidden='true'] {
         display: none;
       }
-
       & li {
         cursor: pointer;
         list-style-type: none;
-        &:hover {
-          background-color: #f1f1f1;
-        }
-        &[aria-selected='true'] {
-          background-color: #666;
-        }
+      }
+      & li:hover {
+        background-color: #f1f1f1;
+      }
+      & li[aria-selected='true'] {
+        background-color: #666;
       }
     }
   </style>
@@ -96,7 +86,6 @@ template.innerHTML = html`
     >
       <input type="text" />
     </div>
-
     <ul
       role="listbox"
       tabindex="-1"
@@ -111,7 +100,7 @@ class NgSelect extends HTMLElement {
   input: HTMLInputElement
   listbox: HTMLUListElement
   combobox: HTMLDivElement
-  tags: HTMLDivElement
+  tags: HTMLUListElement
   selected: Selected = {}
 
   constructor() {
@@ -127,26 +116,19 @@ class NgSelect extends HTMLElement {
   private createLabel(id: string): HTMLLabelElement {
     const label = document.createElement('label')
     label.id = id
-    label.setAttribute('for', this.input?.id || '')
+    label.setAttribute('for', this.input.id)
     label.innerHTML = this.getAttribute('label') || ''
     return label
   }
 
   private setSelected(selected: Selected, remove?: boolean) {
-    //check to remove selected if already exists in this.selected otherwise insert
     const key = Object.keys(selected)[0]
-
-    if (remove) {
-      delete this.selected[key]
-    } else {
-      this.selected = { ...this.selected, ...selected }
-    }
-
+    if (remove) delete this.selected[key]
+    else this.selected = { ...this.selected, ...selected }
     this.input.value = Object.values(this.selected).join(', ')
     this.listbox
       .querySelector(`[data-value=${key}]`)
       ?.setAttribute('aria-selected', (!remove).toString())
-
     this.renderTags()
   }
 
@@ -190,7 +172,7 @@ class NgSelect extends HTMLElement {
       'aria-multiselectable',
       String(
         this.hasAttribute('multiple') &&
-          this.getAttribute('multiple') !== String(false)
+          this.getAttribute('multiple') !== 'false'
       )
     )
     listbox.setAttribute('id', listboxId)
@@ -202,11 +184,10 @@ class NgSelect extends HTMLElement {
       li.setAttribute('data-value', o.getAttribute('value') || '')
       li.innerHTML = o.innerHTML
       listbox.append(li)
-      o.hasAttribute('selected') &&
+      if (o.hasAttribute('selected'))
         this.setSelected({ [o.getAttribute('value') || '']: o.innerHTML })
     })
 
-    // events
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault()
@@ -220,17 +201,14 @@ class NgSelect extends HTMLElement {
         ? this.hideListbox()
         : this.showListbox()
     )
-
     this.addEventListener('blur', () => this.hideListbox())
 
     listbox.addEventListener('click', (e) => {
       const target = e.target as HTMLElement
-
       if (target.tagName === 'LI') {
         const selected = {
           [target.getAttribute('data-value') || '']: target.innerHTML,
         }
-
         const isSelected = target.getAttribute('aria-selected') == 'true'
         this.setSelected(selected, isSelected)
       }
@@ -238,7 +216,6 @@ class NgSelect extends HTMLElement {
 
     listbox.addEventListener('keydown', (e) => {
       const target = e.target as HTMLLIElement
-
       switch (e.key) {
         case 'Enter':
           e.preventDefault()
