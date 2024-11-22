@@ -253,7 +253,15 @@ class NgSelect extends HTMLElement {
     )
 
     // events
-    this.addEventListener('click', () =>
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        this.showListbox()
+      }
+    })
+
+    input.addEventListener('click', () =>
       combobox.getAttribute('aria-expanded') === 'true'
         ? this.hideListbox()
         : this.showListbox()
