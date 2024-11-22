@@ -6,6 +6,24 @@ const html = String.raw
 const template = document.createElement('template')
 template.innerHTML = html`
   <style>
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding: 5px;
+
+      &:empty {
+        display: none;
+      }
+
+      & li {
+        background-color: #f1f1f1;
+        padding: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    }
+
     .wrapper {
       position: relative;
       display: inline-block;
@@ -66,6 +84,7 @@ template.innerHTML = html`
     }
   </style>
   <div class="wrapper">
+    <ul class="tags"></ul>
     <div
       tabindex="0"
       role="combobox"
@@ -93,6 +112,7 @@ class NgSelect extends HTMLElement {
   input?: HTMLInputElement
   listbox?: HTMLUListElement
   combobox?: HTMLDivElement
+  tags?: HTMLDivElement
   selected: Selected = {}
 
   constructor() {
@@ -102,6 +122,7 @@ class NgSelect extends HTMLElement {
     this.input = shadow.querySelector('input')!
     this.combobox = shadow.querySelector('[role=combobox]')!
     this.listbox = shadow.querySelector('[role=listbox]')!
+    this.tags = shadow.querySelector('.tags')!
   }
 
   private getOptions(): Option[] {
@@ -135,14 +156,39 @@ class NgSelect extends HTMLElement {
 
   private setSelected(selected: Selected, remove?: boolean) {
     //check to remove selected if already exists in this.selected otherwise insert
+    const key = Object.keys(selected)[0]
 
     if (remove) {
-      delete this.selected[Object.keys(selected)[0]]
+      delete this.selected[key]
     } else {
       this.selected = { ...this.selected, ...selected }
     }
 
     this.input!.value = Object.values(this.selected).join(', ')
+    console.log(
+      this.listbox!.querySelector(`[name=${key}]`),
+      key,
+      (!remove).toString()
+    )
+    this.listbox!.querySelector(`[data-value=${key}]`)?.setAttribute(
+      'aria-selected',
+      (!remove).toString()
+    )
+
+    this.renderTags()
+  }
+
+  private renderTags() {
+    this.tags!.innerHTML = ''
+    Object.entries(this.selected).forEach(([value, text]) => {
+      const tag = document.createElement('li')
+      tag.innerHTML = text
+      tag.addEventListener('click', () => {
+        this.setSelected({ [value]: text }, true)
+        this.renderTags()
+      })
+      this.tags!.append(tag)
+    })
   }
 
   // private getSelected(): Selected[] {
@@ -175,7 +221,7 @@ class NgSelect extends HTMLElement {
     input.setAttribute('placeholder', this.getAttribute('placeholder') || '')
     input.setAttribute('aria-labelledby', labelId)
     input.setAttribute('id', id)
-    input.before(this.createLabel(labelId))
+    combobox.before(this.createLabel(labelId))
 
     this.setAttribute(
       'aria-multiselectable',
@@ -213,9 +259,7 @@ class NgSelect extends HTMLElement {
         }
 
         const isSelected = target.getAttribute('aria-selected') == 'true'
-
         this.setSelected(selected, isSelected)
-        target.setAttribute('aria-selected', (!isSelected).toString())
 
         // this.dispatchEvent(
         //   new CustomEvent('change', {
