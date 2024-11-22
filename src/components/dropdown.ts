@@ -84,7 +84,7 @@ template.innerHTML = html`
       aria-labelledby="demo-simple-select-label demo-simple-select"
       id="demo-simple-select"
     >
-      <input type="text" />
+      <input type="text" aria-autocomplete="list" />
     </div>
     <ul
       role="listbox"
@@ -161,7 +161,6 @@ class NgSelect extends HTMLElement {
     const labelId = `${id}-label`
     const listboxId = `${id}-listbox`
 
-    input.setAttribute('aria-autocomplete', 'list')
     input.setAttribute('aria-controls', listboxId)
     input.setAttribute('placeholder', this.getAttribute('placeholder') || '')
     input.setAttribute('aria-labelledby', labelId)
@@ -178,14 +177,14 @@ class NgSelect extends HTMLElement {
     listbox.setAttribute('id', listboxId)
 
     this.querySelectorAll('option').forEach((o) => {
+      const [k, v] = [o.getAttribute('value') || '', o.innerHTML]
       const li = document.createElement('li')
       li.setAttribute('role', 'option')
       li.setAttribute('tabindex', '-1')
-      li.setAttribute('data-value', o.getAttribute('value') || '')
-      li.innerHTML = o.innerHTML
+      li.setAttribute('data-value', k)
+      li.innerHTML = v
       listbox.append(li)
-      if (o.hasAttribute('selected'))
-        this.setSelected({ [o.getAttribute('value') || '']: o.innerHTML })
+      if (o.hasAttribute('selected')) this.setSelected({ [k]: v })
     })
 
     input.addEventListener('keydown', (e) => {
