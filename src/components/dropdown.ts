@@ -168,8 +168,26 @@ class NgSelect extends HTMLElement {
       listbox.setAttribute('aria-hidden', 'false')
     })
 
-    input.addEventListener('blur', () => {
+    this.addEventListener('blur', () => {
       listbox.setAttribute('aria-hidden', 'true')
+    })
+
+    listbox.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement
+      console.log({ target })
+      if (target.tagName === 'LI') {
+        const selected = {
+          [target.getAttribute('data-value') || '']: target.innerHTML,
+        }
+
+        console.log({ selected })
+        this.setSelected(selected)
+        // this.dispatchEvent(
+        //   new CustomEvent('change', {
+        //     detail: { value, text },
+        //   })
+        // )
+      }
     })
   }
 }
