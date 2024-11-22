@@ -6,7 +6,6 @@ template.innerHTML = /* HTML */ `
   <style>
     ${style}
   </style>
-
   <div class="wrapper">
     <ul class="tags"></ul>
     <div role="combobox" aria-expanded="false" aria-haspopup="listbox">
@@ -63,22 +62,16 @@ class NgSelect extends HTMLElement {
     Object.entries(this.selected).forEach(([value, text]) => {
       const tag = document.createElement('li')
       tag.innerHTML = text
-      tag.addEventListener('click', () => {
+      tag.addEventListener('click', () =>
         this.setSelected({ [value]: text }, true)
-        this.renderTags()
-      })
+      )
       this.tags.append(tag)
     })
   }
 
-  private showListbox() {
-    this.combobox.setAttribute('aria-expanded', 'true')
-    this.listbox.setAttribute('aria-hidden', 'false')
-  }
-
-  private hideListbox() {
-    this.combobox.setAttribute('aria-expanded', 'false')
-    this.listbox.setAttribute('aria-hidden', 'true')
+  private toggleListbox(show: boolean) {
+    this.combobox.setAttribute('aria-expanded', show.toString())
+    this.listbox.setAttribute('aria-hidden', (!show).toString())
   }
 
   private render() {
@@ -114,17 +107,15 @@ class NgSelect extends HTMLElement {
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault()
-        this.showListbox()
+        this.toggleListbox(true)
         this.focusItem('current')
       }
     })
 
     input.addEventListener('click', () =>
-      combobox.getAttribute('aria-expanded') === 'true'
-        ? this.hideListbox()
-        : this.showListbox()
+      this.toggleListbox(combobox.getAttribute('aria-expanded') !== 'true')
     )
-    this.addEventListener('blur', () => this.hideListbox())
+    this.addEventListener('blur', () => this.toggleListbox(false))
 
     listbox.addEventListener('click', (e) => {
       const target = e.target as HTMLElement
@@ -132,8 +123,10 @@ class NgSelect extends HTMLElement {
         const selected = {
           [target.getAttribute('data-value') || '']: target.innerHTML,
         }
-        const isSelected = target.getAttribute('aria-selected') == 'true'
-        this.setSelected(selected, isSelected)
+        this.setSelected(
+          selected,
+          target.getAttribute('aria-selected') == 'true'
+        )
       }
     })
 
@@ -145,20 +138,19 @@ class NgSelect extends HTMLElement {
           const selected = {
             [target.getAttribute('data-value') || '']: target.innerHTML,
           }
-          const isSelected = target.getAttribute('aria-selected') == 'true'
-          this.setSelected(selected, isSelected)
+          this.setSelected(
+            selected,
+            target.getAttribute('aria-selected') == 'true'
+          )
           break
         case 'Escape':
-          this.hideListbox()
+          this.toggleListbox(false)
           this.input.focus()
           break
         case 'ArrowDown':
-          e.preventDefault()
-          this.focusItem('next')
-          break
         case 'ArrowUp':
           e.preventDefault()
-          this.focusItem('previous')
+          this.focusItem(e.key === 'ArrowDown' ? 'next' : 'previous')
           break
       }
     })
@@ -168,11 +160,9 @@ class NgSelect extends HTMLElement {
     const focused = this.listbox.querySelector('[tabindex="0"]')
     const items = Array.from(this.listbox.querySelectorAll('li'))
     let index = items.indexOf(focused as HTMLLIElement)
-    // index fallbacks
     if (direction === 'next' && index < items.length - 1) index++
     else if (direction === 'previous' && index > 0) index--
     else if (direction === 'current' && index < 0) index = 0
-    //set focus
     items[index].focus()
     items[index].setAttribute('tabindex', '0')
     focused?.setAttribute('tabindex', '-1')
