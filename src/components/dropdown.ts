@@ -35,7 +35,7 @@ template.innerHTML = html`
         &:hover {
           background-color: #f1f1f1;
         }
-        &[aria-selected] {
+        &[aria-selected='true'] {
           background-color: #666;
         }
       }
@@ -110,8 +110,15 @@ class NgSelect extends HTMLElement {
     return label
   }
 
-  private setSelected(selected: Selected) {
-    this.selected = { ...this.selected, ...selected }
+  private setSelected(selected: Selected, remove?: boolean) {
+    //check to remove selected if already exists in this.selected otherwise insert
+
+    if (remove) {
+      delete this.selected[Object.keys(selected)[0]]
+    } else {
+      this.selected = { ...this.selected, ...selected }
+    }
+
     this.input!.value = Object.values(this.selected).join(', ')
   }
 
@@ -174,14 +181,17 @@ class NgSelect extends HTMLElement {
 
     listbox.addEventListener('click', (e) => {
       const target = e.target as HTMLElement
-      console.log({ target })
+
       if (target.tagName === 'LI') {
         const selected = {
           [target.getAttribute('data-value') || '']: target.innerHTML,
         }
 
-        console.log({ selected })
-        this.setSelected(selected)
+        const isSelected = target.getAttribute('aria-selected') == 'true'
+
+        this.setSelected(selected, isSelected)
+        target.setAttribute('aria-selected', (!isSelected).toString())
+
         // this.dispatchEvent(
         //   new CustomEvent('change', {
         //     detail: { value, text },
