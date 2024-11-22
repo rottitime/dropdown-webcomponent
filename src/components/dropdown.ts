@@ -13,6 +13,29 @@ template.innerHTML = html`
     label {
       display: block;
     }
+
+    [role='combobox'] {
+      position: relative;
+
+      /* chevron */
+      &:after {
+        content: '';
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: solid #000;
+        border-width: 0 2px 2px 0;
+        display: inline-block;
+        padding: 3px;
+        transform: rotate(45deg);
+      }
+
+      &[aria-expanded='true']:after {
+        transform: rotate(-135deg);
+      }
+    }
+
     ul {
       --listbox-height: 370px;
       margin: 0;
@@ -143,9 +166,9 @@ class NgSelect extends HTMLElement {
     const labelId = `${id}-label`
     const listboxId = `${id}-listbox`
 
-    const { input, listbox } = this
+    const { input, listbox, combobox } = this
 
-    if (!input || !listbox) return
+    if (!input || !listbox || !combobox) return
 
     input.setAttribute('aria-autocomplete', 'list')
     input.setAttribute('aria-controls', listboxId)
@@ -171,11 +194,13 @@ class NgSelect extends HTMLElement {
     )
 
     // events
-    input.addEventListener('focus', () => {
+    this.addEventListener('focus', () => {
+      combobox.setAttribute('aria-expanded', 'true')
       listbox.setAttribute('aria-hidden', 'false')
     })
 
     this.addEventListener('blur', () => {
+      combobox.setAttribute('aria-expanded', 'false')
       listbox.setAttribute('aria-hidden', 'true')
     })
 
