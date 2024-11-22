@@ -194,6 +194,16 @@ class NgSelect extends HTMLElement {
     })
   }
 
+  private showListbox() {
+    this.combobox?.setAttribute('aria-expanded', 'true')
+    this.listbox?.setAttribute('aria-hidden', 'false')
+  }
+
+  private hideListbox() {
+    this.combobox?.setAttribute('aria-expanded', 'false')
+    this.listbox?.setAttribute('aria-hidden', 'true')
+  }
+
   // private getSelected(): Selected[] {
   //   return []
   // }
@@ -243,15 +253,13 @@ class NgSelect extends HTMLElement {
     )
 
     // events
-    this.addEventListener('focus', () => {
-      combobox.setAttribute('aria-expanded', 'true')
-      listbox.setAttribute('aria-hidden', 'false')
-    })
+    this.addEventListener('click', () =>
+      combobox.getAttribute('aria-expanded') === 'true'
+        ? this.hideListbox()
+        : this.showListbox()
+    )
 
-    this.addEventListener('blur', () => {
-      combobox.setAttribute('aria-expanded', 'false')
-      listbox.setAttribute('aria-hidden', 'true')
-    })
+    this.addEventListener('blur', () => this.hideListbox())
 
     listbox.addEventListener('click', (e) => {
       const target = e.target as HTMLElement
