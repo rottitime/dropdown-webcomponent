@@ -1,5 +1,6 @@
 type Option = { value: string; text: string; selected: boolean }
 type Selected = Record<string, string>
+// type Options = Record<string, { name: string; selected: boolean }>
 
 const html = String.raw
 const template = document.createElement('template')
@@ -75,7 +76,6 @@ class NgSelect extends HTMLElement {
     super()
     const shadow = this.attachShadow({ mode: 'open' })
     shadow.append(template.content.cloneNode(true))
-
     this.input = shadow.querySelector('input')!
     this.combobox = shadow.querySelector('[role=combobox]')!
     this.listbox = shadow.querySelector('[role=listbox]')!
