@@ -1,89 +1,16 @@
+import style from './style.css?raw' // CSS as string
 type Selected = Record<string, string>
 
 const html = String.raw
 const template = document.createElement('template')
 template.innerHTML = html`
   <style>
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      padding: 5px;
-      list-style-type: none;
-      border: 1px solid #ccc;
-      background-color: #fff;
-      &:empty {
-        display: none;
-      }
-      & li {
-        background-color: #666;
-        padding: 5px;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-    }
-
-    .wrapper {
-      position: relative;
-      display: inline-block;
-    }
-    label {
-      display: block;
-    }
-    [role='combobox'] {
-      position: relative;
-      &:after {
-        content: '';
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%) rotate(45deg);
-        border: solid #000;
-        border-width: 0 2px 2px 0;
-        padding: 3px;
-        pointer-events: none;
-      }
-      &[aria-expanded='true']:after {
-        transform: translateY(-50%) rotate(-135deg);
-      }
-    }
-
-    ul[role='listbox'] {
-      --listbox-height: 370px;
-      margin: 0;
-      border: 1px solid #ccc;
-      padding: 10px;
-      overflow-y: auto;
-      max-height: var(--listbox-height);
-      position: absolute;
-      left: 0;
-      width: 100%;
-      background-color: #fff;
-      color: #000;
-      &[aria-hidden='true'] {
-        display: none;
-      }
-      & li {
-        cursor: pointer;
-        list-style-type: none;
-      }
-      & li:hover {
-        background-color: #f1f1f1;
-      }
-      & li[aria-selected='true'] {
-        background-color: #666;
-      }
-    }
+    ${style}
   </style>
+
   <div class="wrapper">
     <ul class="tags"></ul>
-    <div
-      role="combobox"
-      aria-expanded="false"
-      aria-haspopup="listbox"
-      aria-labelledby="demo-simple-select-label demo-simple-select"
-      id="demo-simple-select"
-    >
+    <div role="combobox" aria-expanded="false" aria-haspopup="listbox">
       <input type="text" aria-autocomplete="list" />
     </div>
     <ul
@@ -169,12 +96,10 @@ class NgSelect extends HTMLElement {
 
     this.setAttribute(
       'aria-multiselectable',
-      String(
-        this.hasAttribute('multiple') &&
-          this.getAttribute('multiple') !== 'false'
-      )
+      String(this.getAttribute('multiple') !== 'false' || null)
     )
     listbox.setAttribute('id', listboxId)
+    listbox.setAttribute('aria-labelledby', labelId)
 
     this.querySelectorAll('option').forEach((o) => {
       const [k, v] = [o.getAttribute('value') || '', o.innerHTML]
@@ -191,7 +116,6 @@ class NgSelect extends HTMLElement {
       if (e.key === 'Enter') {
         e.preventDefault()
         this.showListbox()
-        // this.listbox.focus()
         this.focusItem('current')
       }
     })

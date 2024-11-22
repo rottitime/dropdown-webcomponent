@@ -1,0 +1,70 @@
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 5px;
+  list-style-type: none;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  &:empty {
+    display: none;
+  }
+  & li {
+    background-color: #666;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+}
+
+.wrapper {
+  position: relative;
+  display: inline-block;
+}
+label {
+  display: block;
+}
+[role='combobox'] {
+  position: relative;
+  &:after {
+    content: '';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    border: solid #000;
+    border-width: 0 2px 2px 0;
+    padding: 3px;
+    pointer-events: none;
+  }
+  &[aria-expanded='true']:after {
+    transform: translateY(-50%) rotate(-135deg);
+  }
+}
+
+ul[role='listbox'] {
+  --listbox-height: 370px;
+  margin: 0;
+  border: 1px solid #ccc;
+  padding: 10px;
+  overflow-y: auto;
+  max-height: var(--listbox-height);
+  position: absolute;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  color: #000;
+  &[aria-hidden='true'] {
+    display: none;
+  }
+  & li {
+    cursor: pointer;
+    list-style-type: none;
+  }
+  & li:hover {
+    background-color: #f1f1f1;
+  }
+  & li[aria-selected='true'] {
+    background-color: #666;
+  }
+}
