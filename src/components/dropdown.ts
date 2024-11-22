@@ -211,12 +211,7 @@ class NgSelect extends HTMLElement {
       if (e.key === 'Enter') {
         e.preventDefault()
         this.showListbox()
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault()
-        this.focusNextListItem()
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault()
-        this.focusPreviousListItem()
+        this.listbox.focus()
       }
     })
 
