@@ -1,6 +1,4 @@
-type Option = { value: string; text: string; selected: boolean }
 type Selected = Record<string, string>
-// type Options = Record<string, { name: string; selected: boolean }>
 
 const html = String.raw
 const template = document.createElement('template')
@@ -50,6 +48,7 @@ template.innerHTML = html`
         display: inline-block;
         padding: 3px;
         transform: rotate(45deg);
+        pointer-events: none;
       }
 
       &[aria-expanded='true']:after {
@@ -109,10 +108,10 @@ template.innerHTML = html`
 `
 
 class NgSelect extends HTMLElement {
-  input?: HTMLInputElement
-  listbox?: HTMLUListElement
-  combobox?: HTMLDivElement
-  tags?: HTMLDivElement
+  input: HTMLInputElement
+  listbox: HTMLUListElement
+  combobox: HTMLDivElement
+  tags: HTMLDivElement
   selected: Selected = {}
 
   constructor() {
@@ -123,27 +122,6 @@ class NgSelect extends HTMLElement {
     this.combobox = shadow.querySelector('[role=combobox]')!
     this.listbox = shadow.querySelector('[role=listbox]')!
     this.tags = shadow.querySelector('.tags')!
-  }
-
-  private getOptions(): Option[] {
-    return Array.from(this.querySelectorAll('option')).map((o) => ({
-      value: o.getAttribute('value') || '',
-      text: o.innerHTML,
-      selected: o.hasAttribute('selected'),
-    }))
-  }
-
-  private setOptions(options: Option[]) {
-    this.listbox!.innerHTML = ''
-    options.forEach((o) => {
-      const li = document.createElement('li')
-      li.setAttribute('role', 'option')
-      li.setAttribute('tabindex', '-1')
-      o.selected && li.setAttribute('aria-selected', 'true')
-      li.setAttribute('data-value', o.value)
-      li.innerHTML = o.text
-      this.listbox!.append(li)
-    })
   }
 
   private createLabel(id: string): HTMLLabelElement {
@@ -164,22 +142,16 @@ class NgSelect extends HTMLElement {
       this.selected = { ...this.selected, ...selected }
     }
 
-    this.input!.value = Object.values(this.selected).join(', ')
-    console.log(
-      this.listbox!.querySelector(`[name=${key}]`),
-      key,
-      (!remove).toString()
-    )
-    this.listbox!.querySelector(`[data-value=${key}]`)?.setAttribute(
-      'aria-selected',
-      (!remove).toString()
-    )
+    this.input.value = Object.values(this.selected).join(', ')
+    this.listbox
+      .querySelector(`[data-value=${key}]`)
+      ?.setAttribute('aria-selected', (!remove).toString())
 
     this.renderTags()
   }
 
   private renderTags() {
-    this.tags!.innerHTML = ''
+    this.tags.innerHTML = ''
     Object.entries(this.selected).forEach(([value, text]) => {
       const tag = document.createElement('li')
       tag.innerHTML = text
@@ -187,44 +159,25 @@ class NgSelect extends HTMLElement {
         this.setSelected({ [value]: text }, true)
         this.renderTags()
       })
-      this.tags!.append(tag)
+      this.tags.append(tag)
     })
   }
 
   private showListbox() {
-    this.combobox?.setAttribute('aria-expanded', 'true')
-    this.listbox?.setAttribute('aria-hidden', 'false')
+    this.combobox.setAttribute('aria-expanded', 'true')
+    this.listbox.setAttribute('aria-hidden', 'false')
   }
 
   private hideListbox() {
-    this.combobox?.setAttribute('aria-expanded', 'false')
-    this.listbox?.setAttribute('aria-hidden', 'true')
+    this.combobox.setAttribute('aria-expanded', 'false')
+    this.listbox.setAttribute('aria-hidden', 'true')
   }
 
-  // private getSelected(): Selected[] {
-  //   return []
-  // }
-
-  connectedCallback() {
-    this.render()
-  }
-
-  //   static get observedAttributes() {
-  //     return ['name', 'id', 'multiple', 'selected']
-  //   }
-
-  //   attributeChangedCallback(name, oldValue, newValue) {
-  //     console.log(`Attribute ${name} has changed.`, { oldValue, newValue })
-  //   }
-
-  render() {
+  private render() {
+    const { input, listbox, combobox } = this
     const id = this.id || self.crypto.randomUUID()
     const labelId = `${id}-label`
     const listboxId = `${id}-listbox`
-
-    const { input, listbox, combobox } = this
-
-    if (!input || !listbox || !combobox) return
 
     input.setAttribute('aria-autocomplete', 'list')
     input.setAttribute('aria-controls', listboxId)
@@ -242,15 +195,18 @@ class NgSelect extends HTMLElement {
     )
     listbox.setAttribute('id', listboxId)
 
-    this.setOptions(this.getOptions())
-    this.setSelected(
-      this.getOptions()
-        .filter((o) => o.selected)
-        .reduce((acc, o) => ({ ...acc, [o.value || '']: o.text }), {})
-    )
+    this.querySelectorAll('option').forEach((o) => {
+      const li = document.createElement('li')
+      li.setAttribute('role', 'option')
+      li.setAttribute('tabindex', '-1')
+      li.setAttribute('data-value', o.getAttribute('value') || '')
+      li.innerHTML = o.innerHTML
+      listbox.append(li)
+      o.hasAttribute('selected') &&
+        this.setSelected({ [o.getAttribute('value') || '']: o.innerHTML })
+    })
 
     // events
-
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault()
@@ -309,16 +265,9 @@ class NgSelect extends HTMLElement {
     })
   }
 
-  // private setListboxItemFocus(focused: number) {
-  //   const items = Array.from(this.listbox!.querySelectorAll('li'))
-  //   items.forEach((item) => item.setAttribute('tabindex', '-1'))
-  //   items[focused].focus()
-  //   items[focused].setAttribute('tabindex', '0')
-  // }
-
   private focusNextListItem() {
-    const focused = this.listbox!.querySelector('[tabindex="0"]')
-    const items = Array.from(this.listbox!.querySelectorAll('li'))
+    const focused = this.listbox.querySelector('[tabindex="0"]')
+    const items = Array.from(this.listbox.querySelectorAll('li'))
     let index = items.indexOf(focused as HTMLLIElement)
     if (index < items.length - 1) {
       index++
@@ -329,8 +278,8 @@ class NgSelect extends HTMLElement {
   }
 
   private focusPreviousListItem() {
-    const focused = this.listbox!.querySelector('[tabindex="0"]')
-    const items = Array.from(this.listbox!.querySelectorAll('li'))
+    const focused = this.listbox.querySelector('[tabindex="0"]')
+    const items = Array.from(this.listbox.querySelectorAll('li'))
     let index = items.indexOf(focused as HTMLLIElement)
     if (index > 0) {
       index--
@@ -338,6 +287,10 @@ class NgSelect extends HTMLElement {
       items[index].setAttribute('tabindex', '0')
       focused?.setAttribute('tabindex', '-1')
     }
+  }
+
+  connectedCallback() {
+    this.render()
   }
 }
 
