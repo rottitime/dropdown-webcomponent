@@ -6,6 +6,7 @@ template.innerHTML = /* HTML */ `
   <style>
     ${style}
   </style>
+
   <div class="wrapper">
     <ul class="tags"></ul>
     <div role="combobox" aria-expanded="false" aria-haspopup="listbox">
@@ -15,7 +16,6 @@ template.innerHTML = /* HTML */ `
       role="listbox"
       tabindex="-1"
       aria-hidden="true"
-      aria-labelledby="demo-multiple-name-label"
       aria-multiselectable="true"
     ></ul>
   </div>
@@ -76,7 +76,7 @@ class NgSelect extends HTMLElement {
 
   private render() {
     const { input, listbox, combobox } = this
-    const id = this.id || self.crypto.randomUUID()
+    const id = this.id || `d${self.crypto.randomUUID()}`
     const labelId = `${id}-label`
     const listboxId = `${id}-listbox`
 

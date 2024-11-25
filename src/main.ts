@@ -15,9 +15,9 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = html`
       label="This is my label"
     >
       <option value="volvo">Volvo</option>
-      <option value="saab" selected>Saab</option>
+      <option value="saab">Saab</option>
       <option value="opel">Opel</option>
-      <option value="audi" selected>Audi</option>
+      <option value="audi">Audi</option>
       <option value="bmw">BMW</option>
       <option value="mercedes">Mercedes</option>
       <option value="fiat">Fiat</option>
