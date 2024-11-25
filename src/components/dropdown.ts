@@ -128,15 +128,30 @@ class NgSelect extends HTMLElement {
       //open listbox and only show the values that match the input
       this.toggleListbox(true)
       const items = Array.from(listbox.querySelectorAll('li'))
+
+      // reset the listbox and unwrap any <mark> tags
+      items.forEach((item) => {
+        item.style.display = 'block'
+        item
+          .querySelectorAll('mark')
+          .forEach((EL) => EL.replaceWith(...EL.childNodes))
+      })
+
       items.forEach((item) => {
         const hasText = item.innerHTML.toLowerCase().includes(value)
 
-        item.innerHTML = item.innerHTML.replace(
-          new RegExp(value, 'gi'),
-          (x) => {
-            return `<mark>${x}</mark>`
-          }
-        )
+        if (hasText) {
+          item.innerHTML = item.innerHTML.replace(
+            new RegExp(value, 'gi'),
+            (x) => {
+              return `<mark>${x}</mark>`
+            }
+          )
+        } else {
+          item
+            .querySelectorAll('mark')
+            .forEach((EL) => EL.replaceWith(...EL.childNodes))
+        }
 
         item.style.display = hasText ? 'block' : 'none'
       })
