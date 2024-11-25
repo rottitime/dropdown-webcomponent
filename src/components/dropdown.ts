@@ -11,7 +11,7 @@ template.innerHTML = /* HTML */ `
   <div class="wrapper">
     <ul class="tags"></ul>
     <div role="combobox" aria-expanded="false" aria-haspopup="listbox">
-      <input type="text" aria-autocomplete="list" />
+      <input type="text" aria-autocomplete="list" autocomplete="off" />
     </div>
     <ul
       role="listbox"
@@ -122,16 +122,21 @@ class NgSelect extends HTMLElement {
     })
 
     input.addEventListener('input', (e) => {
-      const { value } = e.target as HTMLInputElement
+      const value = (e.target as HTMLInputElement).value.toLowerCase()
       console.log('changing, ', { value })
 
       //open listbox and only show the values that match the input
       this.toggleListbox(true)
       const items = Array.from(listbox.querySelectorAll('li'))
       items.forEach((item) => {
-        const hasText = item.innerHTML
-          .toLowerCase()
-          .includes(value.toLowerCase())
+        const hasText = item.innerHTML.toLowerCase().includes(value)
+
+        item.innerHTML = item.innerHTML.replace(
+          new RegExp(value, 'gi'),
+          (x) => {
+            return `<mark>${x}</mark>`
+          }
+        )
 
         item.style.display = hasText ? 'block' : 'none'
       })
