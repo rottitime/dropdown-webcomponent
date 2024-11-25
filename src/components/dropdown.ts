@@ -27,6 +27,7 @@ class NgSelect extends HTMLElement {
   combobox: HTMLDivElement
   tags: HTMLUListElement
   selected: Selected = {}
+  onChange: (v: Selected) => void
 
   constructor() {
     super()
@@ -36,6 +37,11 @@ class NgSelect extends HTMLElement {
     this.combobox = shadow.querySelector('[role=combobox]')!
     this.listbox = shadow.querySelector('[role=listbox]')!
     this.tags = shadow.querySelector('.tags')!
+
+    const onchange = new Function(
+      `return ${this.getAttribute('onchange') || ''}`
+    )()
+    this.onChange = (v) => typeof onchange === 'function' && onchange(v)
   }
 
   private createLabel(id: string): HTMLLabelElement {
@@ -54,7 +60,9 @@ class NgSelect extends HTMLElement {
     this.listbox
       .querySelector(`[data-value=${key}]`)
       ?.setAttribute('aria-selected', (!remove).toString())
+
     this.renderTags()
+    this.onChange(this.selected)
   }
 
   private renderTags() {

@@ -13,6 +13,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = html`
       placeholder="someting working"
       multiple
       label="This is my label"
+      onchange="(v)=>console.log(this)"
     >
       <option value="volvo">Volvo</option>
       <option value="saab">Saab</option>
@@ -245,7 +246,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = html`
       vivamus sociosqu conubia. Auctor etiam ornare libero mollis pretium
       ultrices. Enim morbi vivamus mauris neque ultricies posuere cras faucibus.
       Sodales tempor ac iaculis ad montes fermentum. Fusce quam eleifend
-      ultricies non pulvinar. Ultrices ridiculus ad sagittis massa rhoncus
+      ultricies non pulvinar. Ultricies ridiculus ad sagittis massa rhoncus
       nascetur convallis semper vitae. Massa velit per velit; scelerisque
       convallis vestibulum suscipit porta sed. Torquent quisque orci vulputate
       magna in sollicitudin. Molestie hendrerit nostra nunc nostra class donec
