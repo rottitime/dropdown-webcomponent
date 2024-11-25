@@ -121,6 +121,22 @@ class NgSelect extends HTMLElement {
       }
     })
 
+    input.addEventListener('input', (e) => {
+      const { value } = e.target as HTMLInputElement
+      console.log('changing, ', { value })
+
+      //open listbox and only show the values that match the input
+      this.toggleListbox(true)
+      const items = Array.from(listbox.querySelectorAll('li'))
+      items.forEach((item) => {
+        const hasText = item.innerHTML
+          .toLowerCase()
+          .includes(value.toLowerCase())
+
+        item.style.display = hasText ? 'block' : 'none'
+      })
+    })
+
     input.addEventListener('click', () =>
       this.toggleListbox(combobox.getAttribute('aria-expanded') !== 'true')
     )
