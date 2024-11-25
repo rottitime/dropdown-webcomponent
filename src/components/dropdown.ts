@@ -1,5 +1,6 @@
 import style from './style.css?raw'
 type Selected = Record<string, string>
+type onChangeEvent = (v: Selected) => void
 
 const template = document.createElement('template')
 template.innerHTML = /* HTML */ `
@@ -27,7 +28,7 @@ class NgSelect extends HTMLElement {
   combobox: HTMLDivElement
   tags: HTMLUListElement
   selected: Selected = {}
-  onChange: (v: Selected) => void
+  onChange: onChangeEvent
 
   constructor() {
     super()
@@ -37,11 +38,10 @@ class NgSelect extends HTMLElement {
     this.combobox = shadow.querySelector('[role=combobox]')!
     this.listbox = shadow.querySelector('[role=listbox]')!
     this.tags = shadow.querySelector('.tags')!
-
-    const onchange = new Function(
-      `return ${this.getAttribute('onchange') || ''}`
-    )()
-    this.onChange = (v) => typeof onchange === 'function' && onchange(v)
+    this.onChange = new Function(
+      'v',
+      `return (${this.getAttribute('onchange') || '() => {}'})(v)`
+    ) as onChangeEvent
   }
 
   private createLabel(id: string): HTMLLabelElement {

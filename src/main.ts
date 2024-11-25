@@ -13,7 +13,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = html`
       placeholder="someting working"
       multiple
       label="This is my label"
-      onchange="(v)=>console.log(this)"
+      onchange="(v)=>console.log(v)"
     >
       <option value="volvo">Volvo</option>
       <option value="saab">Saab</option>
