@@ -56,7 +56,8 @@ class NgSelect extends HTMLElement {
     const key = Object.keys(selected)[0]
     if (remove) delete this.selected[key]
     else this.selected = { ...this.selected, ...selected }
-    this.input.value = Object.values(this.selected).join(', ')
+
+    this.input.placeholder = Object.values(this.selected).join(', ')
     this.listbox
       .querySelector(`[data-value=${key}]`)
       ?.setAttribute('aria-selected', (!remove).toString())
