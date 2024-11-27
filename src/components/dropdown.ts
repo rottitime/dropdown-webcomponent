@@ -86,21 +86,20 @@ class NgSelect extends HTMLElement {
   private highlightTextInOptions(text: string) {
     const items = Array.from(this.listbox.querySelectorAll('li'))
 
-    // reset the listbox and unwrap any <mark> tags
     items.forEach((item) => {
+      //reset
       item.hidden = false
       item
         .querySelectorAll('mark')
         .forEach((EL) => EL.replaceWith(...EL.childNodes))
-    })
 
-    items.forEach((item) => {
-      const hasText = item.innerHTML.toLowerCase().includes(text)
+      const hasText = item.innerText.toLowerCase().includes(text)
 
       if (hasText) {
-        item.innerHTML = item.innerHTML.replace(new RegExp(text, 'gi'), (x) => {
-          return `<mark>${x}</mark>`
-        })
+        item.innerHTML = item.innerHTML.replace(
+          new RegExp(text, 'gi'),
+          (x) => `<mark>${x}</mark>`
+        )
       } else {
         item
           .querySelectorAll('mark')
