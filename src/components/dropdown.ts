@@ -7,7 +7,6 @@ template.innerHTML = /* HTML */ `
   <style>
     ${style}
   </style>
-
   <div class="wrapper">
     <ul class="tags"></ul>
     <div role="combobox" aria-expanded="false" aria-haspopup="listbox">
@@ -61,7 +60,6 @@ class NgSelect extends HTMLElement {
     this.listbox
       .querySelector(`[data-value=${key}]`)
       ?.setAttribute('aria-selected', (!remove).toString())
-
     this.renderTags()
     this.onChange(this.selected)
   }
@@ -84,15 +82,11 @@ class NgSelect extends HTMLElement {
   }
 
   private highlightTextInOptions(text: string) {
-    const items = Array.from(this.listbox.querySelectorAll('li'))
-
-    items.forEach((item) => {
-      //reset
+    Array.from(this.listbox.querySelectorAll('li')).forEach((item) => {
       item.hidden = false
       item
         .querySelectorAll('mark')
         .forEach((EL) => EL.replaceWith(...EL.childNodes))
-
       const hasText = item.innerText.toLowerCase().includes(text)
       if (hasText) {
         item.innerHTML = item.innerHTML.replace(
@@ -100,7 +94,6 @@ class NgSelect extends HTMLElement {
           (x) => `<mark>${x}</mark>`
         )
       }
-
       item.hidden = !hasText
     })
   }
@@ -137,7 +130,6 @@ class NgSelect extends HTMLElement {
 
     input.addEventListener('input', (e) => {
       const value = (e.target as HTMLInputElement).value.toLowerCase()
-      //open listbox and only show the values that match the input
       this.toggleListbox(true)
       this.highlightTextInOptions(value)
     })
@@ -160,28 +152,19 @@ class NgSelect extends HTMLElement {
       }
     })
 
-    /* Keyboard events */
-    input.addEventListener('keydown', (e) => {
-      switch (e.key) {
-        case 'Enter':
-          e.preventDefault()
+    input.addEventListener('keydown', this.handleKeydown.bind(this))
+    listbox.addEventListener('keydown', this.handleKeydown.bind(this))
+  }
+
+  private handleKeydown(e: KeyboardEvent) {
+    const target = e.target as HTMLLIElement
+    switch (e.key) {
+      case 'Enter':
+        e.preventDefault()
+        if (target.tagName === 'INPUT') {
           this.toggleListbox(true)
           this.focusItem('current')
-          break
-        case 'ArrowDown':
-        case 'ArrowUp':
-          e.preventDefault()
-          this.toggleListbox(true)
-          this.focusItem(e.key === 'ArrowDown' ? 'next' : 'previous')
-          break
-      }
-    })
-
-    listbox.addEventListener('keydown', (e) => {
-      const target = e.target as HTMLLIElement
-      switch (e.key) {
-        case 'Enter':
-          e.preventDefault()
+        } else {
           const selected = {
             [target.getAttribute('data-value') || '']: target.innerText,
           }
@@ -189,21 +172,21 @@ class NgSelect extends HTMLElement {
             selected,
             target.getAttribute('aria-selected') == 'true'
           )
-          break
-        case 'Escape':
-          this.toggleListbox(false)
-          this.input.focus()
-          break
-        case 'ArrowDown':
-        case 'ArrowUp':
-          e.preventDefault()
-          this.focusItem(e.key === 'ArrowDown' ? 'next' : 'previous')
-          break
-        default:
-          // push the key to the input
-          input.focus()
-      }
-    })
+        }
+        break
+      case 'Escape':
+        this.toggleListbox(false)
+        this.input.focus()
+        break
+      case 'ArrowDown':
+      case 'ArrowUp':
+        e.preventDefault()
+        this.toggleListbox(true)
+        this.focusItem(e.key === 'ArrowDown' ? 'next' : 'previous')
+        break
+      default:
+        if (target.tagName === 'LI') this.input.focus()
+    }
   }
 
   private focusItem(direction: 'next' | 'previous' | 'current') {
