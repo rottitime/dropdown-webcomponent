@@ -112,6 +112,7 @@ class NgSelect extends HTMLElement {
     const labelId = `${id}-label`
     const listboxId = `${id}-listbox`
 
+    input.setAttribute('name', this.getAttribute('name') || '')
     input.setAttribute('aria-controls', listboxId)
     input.setAttribute('placeholder', this.getAttribute('placeholder') || '')
     input.setAttribute('aria-labelledby', labelId)
