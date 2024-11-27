@@ -122,7 +122,7 @@ class NgSelect extends HTMLElement {
           break
         case 'ArrowDown':
         case 'ArrowUp':
-          console.log('arrow down')
+          console.log('inpout arrow', e.key)
           e.preventDefault()
           this.toggleListbox(true)
           this.focusItem(e.key === 'ArrowDown' ? 'next' : 'previous')
@@ -139,7 +139,7 @@ class NgSelect extends HTMLElement {
 
       // reset the listbox and unwrap any <mark> tags
       items.forEach((item) => {
-        item.style.display = 'block'
+        item.hidden = false
         item
           .querySelectorAll('mark')
           .forEach((EL) => EL.replaceWith(...EL.childNodes))
@@ -161,7 +161,7 @@ class NgSelect extends HTMLElement {
             .forEach((EL) => EL.replaceWith(...EL.childNodes))
         }
 
-        item.style.display = hasText ? 'block' : 'none'
+        item.hidden = !hasText
       })
     })
 
@@ -202,8 +202,8 @@ class NgSelect extends HTMLElement {
           break
         case 'ArrowDown':
         case 'ArrowUp':
-          console.log('arrow down')
           e.preventDefault()
+          console.log('arrow', e.key)
           this.focusItem(e.key === 'ArrowDown' ? 'next' : 'previous')
           break
         default:
@@ -215,7 +215,7 @@ class NgSelect extends HTMLElement {
 
   private focusItem(direction: 'next' | 'previous' | 'current') {
     const focused = this.listbox.querySelector('[tabindex="0"]')
-    const items = Array.from(this.listbox.querySelectorAll('li'))
+    const items = Array.from(this.listbox.querySelectorAll('li:not([hidden])'))
     let index = items.indexOf(focused as HTMLLIElement)
     if (direction === 'next' && index < items.length - 1) index++
     else if (direction === 'previous' && index > 0) index--
