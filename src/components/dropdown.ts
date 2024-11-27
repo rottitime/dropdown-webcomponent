@@ -1,11 +1,77 @@
-import style from './style.css?raw'
 type Selected = Record<string, string>
 type onChangeEvent = (v: Selected) => void
 
 const template = document.createElement('template')
 template.innerHTML = /* HTML */ `
   <style>
-    ${style}
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding: 5px;
+      list-style-type: none;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      &:empty {
+        display: none;
+      }
+      & li {
+        background-color: #666;
+        padding: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    }
+
+    .wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    [role='combobox'] {
+      position: relative;
+      &:after {
+        content: '';
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%) rotate(45deg);
+        border: solid #000;
+        border-width: 0 2px 2px 0;
+        padding: 3px;
+        pointer-events: none;
+      }
+      &[aria-expanded='true']:after {
+        transform: translateY(-50%) rotate(-135deg);
+      }
+    }
+
+    ul[role='listbox'] {
+      --listbox-height: 370px;
+      margin: 0;
+      border: 1px solid #ccc;
+      padding: 10px;
+      overflow-y: auto;
+      max-height: var(--listbox-height);
+      position: absolute;
+      left: 0;
+      width: 100%;
+      background-color: #fff;
+      color: #000;
+      &[aria-hidden='true'] {
+        display: none;
+      }
+      & li {
+        cursor: pointer;
+        list-style-type: none;
+      }
+      & li:hover {
+        background-color: #f1f1f1;
+      }
+      & li[aria-selected='true'] {
+        background-color: #666;
+      }
+    }
   </style>
   <div class="wrapper">
     <ul class="tags"></ul>
@@ -17,6 +83,10 @@ template.innerHTML = /* HTML */ `
 `
 
 class NgSelect extends HTMLElement {
+  static formAssociated = true
+  static observedAttributes = ['value']
+  private _internals: ElementInternals
+
   input: HTMLInputElement
   listbox: HTMLUListElement
   combobox: HTMLDivElement
@@ -28,7 +98,7 @@ class NgSelect extends HTMLElement {
   constructor() {
     super()
 
-    const shadow = this.attachShadow({ mode: 'open' })
+    const shadow = this.attachShadow({ mode: 'open', delegatesFocus: true })
     shadow.append(template.content.cloneNode(true))
     this.isMultiple =
       this.getAttribute('multiple') === 'true' ||
@@ -41,14 +111,8 @@ class NgSelect extends HTMLElement {
       'v',
       `return (${this.getAttribute('onchange') || '() => {}'})(v)`
     ) as onChangeEvent
-  }
 
-  private createLabel(id: string): HTMLLabelElement {
-    const label = document.createElement('label')
-    label.id = id
-    label.setAttribute('for', this.input.id)
-    label.innerHTML = this.getAttribute('label') || ''
-    return label
+    this._internals = this.attachInternals()
   }
 
   private setSelected(selected: Selected, remove?: boolean) {
@@ -61,6 +125,7 @@ class NgSelect extends HTMLElement {
       this.listbox
         .querySelector(`[data-value=${key}]`)
         ?.setAttribute('aria-selected', (!remove).toString())
+
       this.renderTags()
     } else {
       this.selected = selected
@@ -68,7 +133,13 @@ class NgSelect extends HTMLElement {
       this.toggleListbox(false)
     }
 
+    this._internals.setFormValue(selected[key])
+    this.setAttribute('value', selected[key])
+
+    this.updateValidity(selected[key])
     this.onChange(this.selected)
+    // Dispatch a change event
+    this.dispatchEvent(new Event('change', { bubbles: true, composed: true }))
   }
 
   private renderTags() {
@@ -109,19 +180,17 @@ class NgSelect extends HTMLElement {
   private render() {
     const { input, listbox, combobox } = this
     const id = this.id || `d${self.crypto.randomUUID()}`
-    const labelId = `${id}-label`
+
     const listboxId = `${id}-listbox`
 
     input.setAttribute('name', this.getAttribute('name') || '')
     input.setAttribute('aria-controls', listboxId)
     input.setAttribute('placeholder', this.getAttribute('placeholder') || '')
-    input.setAttribute('aria-labelledby', labelId)
+
     input.setAttribute('id', id)
-    combobox.before(this.createLabel(labelId))
 
     listbox.setAttribute('aria-multiselectable', String(this.isMultiple))
     listbox.setAttribute('id', listboxId)
-    listbox.setAttribute('aria-labelledby', labelId)
 
     this.querySelectorAll('option').forEach((o) => {
       const [k, v] = [o.getAttribute('value') || '', o.innerText]
@@ -143,6 +212,7 @@ class NgSelect extends HTMLElement {
     input.addEventListener('click', () =>
       this.toggleListbox(combobox.getAttribute('aria-expanded') !== 'true')
     )
+
     this.addEventListener('blur', () => this.toggleListbox(false))
 
     listbox.addEventListener('click', (e) => {
@@ -160,6 +230,20 @@ class NgSelect extends HTMLElement {
 
     input.addEventListener('keydown', this.handleKeydown.bind(this))
     listbox.addEventListener('keydown', this.handleKeydown.bind(this))
+  }
+
+  private updateValidity(value: string) {
+    if (value.length >= 2) {
+      this._internals.setValidity({})
+      return
+    }
+
+    this._internals.setValidity(
+      { tooShort: true },
+      'value is too short',
+      this.input
+    )
+    this._internals.reportValidity()
   }
 
   private handleKeydown(e: KeyboardEvent) {
@@ -215,6 +299,12 @@ class NgSelect extends HTMLElement {
 
   connectedCallback() {
     this.render()
+    this._internals.setValidity({})
+  }
+
+  attributeChangedCallback(_name: string, _oldValue: string, newValue: string) {
+    this._internals.setFormValue(newValue)
+    this.setAttribute('value', newValue)
   }
 }
 
