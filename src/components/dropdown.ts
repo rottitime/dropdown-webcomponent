@@ -94,16 +94,11 @@ class NgSelect extends HTMLElement {
         .forEach((EL) => EL.replaceWith(...EL.childNodes))
 
       const hasText = item.innerText.toLowerCase().includes(text)
-
       if (hasText) {
         item.innerHTML = item.innerHTML.replace(
           new RegExp(text, 'gi'),
           (x) => `<mark>${x}</mark>`
         )
-      } else {
-        item
-          .querySelectorAll('mark')
-          .forEach((EL) => EL.replaceWith(...EL.childNodes))
       }
 
       item.hidden = !hasText
@@ -140,22 +135,6 @@ class NgSelect extends HTMLElement {
       if (o.hasAttribute('selected')) this.setSelected({ [k]: v })
     })
 
-    input.addEventListener('keydown', (e) => {
-      switch (e.key) {
-        case 'Enter':
-          e.preventDefault()
-          this.toggleListbox(true)
-          this.focusItem('current')
-          break
-        case 'ArrowDown':
-        case 'ArrowUp':
-          e.preventDefault()
-          this.toggleListbox(true)
-          this.focusItem(e.key === 'ArrowDown' ? 'next' : 'previous')
-          break
-      }
-    })
-
     input.addEventListener('input', (e) => {
       const value = (e.target as HTMLInputElement).value.toLowerCase()
       //open listbox and only show the values that match the input
@@ -178,6 +157,23 @@ class NgSelect extends HTMLElement {
           selected,
           target.getAttribute('aria-selected') === 'true'
         )
+      }
+    })
+
+    /* Keyboard events */
+    input.addEventListener('keydown', (e) => {
+      switch (e.key) {
+        case 'Enter':
+          e.preventDefault()
+          this.toggleListbox(true)
+          this.focusItem('current')
+          break
+        case 'ArrowDown':
+        case 'ArrowUp':
+          e.preventDefault()
+          this.toggleListbox(true)
+          this.focusItem(e.key === 'ArrowDown' ? 'next' : 'previous')
+          break
       }
     })
 
