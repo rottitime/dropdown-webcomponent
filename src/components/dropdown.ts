@@ -70,7 +70,7 @@ class NgSelect extends HTMLElement {
     this.tags.innerHTML = ''
     Object.entries(this.selected).forEach(([value, text]) => {
       const tag = document.createElement('li')
-      tag.innerHTML = text
+      tag.innerText = text
       tag.addEventListener('click', () =>
         this.setSelected({ [value]: text }, true)
       )
@@ -103,7 +103,7 @@ class NgSelect extends HTMLElement {
     listbox.setAttribute('aria-labelledby', labelId)
 
     this.querySelectorAll('option').forEach((o) => {
-      const [k, v] = [o.getAttribute('value') || '', o.innerHTML]
+      const [k, v] = [o.getAttribute('value') || '', o.innerText]
       const li = document.createElement('li')
       li.setAttribute('role', 'option')
       li.setAttribute('tabindex', '-1')
@@ -189,7 +189,7 @@ class NgSelect extends HTMLElement {
         case 'Enter':
           e.preventDefault()
           const selected = {
-            [target.getAttribute('data-value') || '']: target.innerHTML,
+            [target.getAttribute('data-value') || '']: target.innerText,
           }
           this.setSelected(
             selected,
@@ -215,14 +215,17 @@ class NgSelect extends HTMLElement {
 
   private focusItem(direction: 'next' | 'previous' | 'current') {
     const focused = this.listbox.querySelector('[tabindex="0"]')
-    const items = Array.from(this.listbox.querySelectorAll('li:not([hidden])'))
+    const items: HTMLLIElement[] = Array.from(
+      this.listbox.querySelectorAll('li:not([hidden])')
+    )
     let index = items.indexOf(focused as HTMLLIElement)
+
     if (direction === 'next' && index < items.length - 1) index++
     else if (direction === 'previous' && index > 0) index--
     else if (direction === 'current' && index < 0) index = 0
 
     if (items[index]) {
-      items[index]?.focus()
+      items[index].focus()
       items[index].setAttribute('tabindex', '0')
       focused?.setAttribute('tabindex', '-1')
     }
