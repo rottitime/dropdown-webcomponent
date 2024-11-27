@@ -83,6 +83,34 @@ class NgSelect extends HTMLElement {
     this.listbox.setAttribute('aria-hidden', (!show).toString())
   }
 
+  private highlightTextInOptions(text: string) {
+    const items = Array.from(this.listbox.querySelectorAll('li'))
+
+    // reset the listbox and unwrap any <mark> tags
+    items.forEach((item) => {
+      item.hidden = false
+      item
+        .querySelectorAll('mark')
+        .forEach((EL) => EL.replaceWith(...EL.childNodes))
+    })
+
+    items.forEach((item) => {
+      const hasText = item.innerHTML.toLowerCase().includes(text)
+
+      if (hasText) {
+        item.innerHTML = item.innerHTML.replace(new RegExp(text, 'gi'), (x) => {
+          return `<mark>${x}</mark>`
+        })
+      } else {
+        item
+          .querySelectorAll('mark')
+          .forEach((EL) => EL.replaceWith(...EL.childNodes))
+      }
+
+      item.hidden = !hasText
+    })
+  }
+
   private render() {
     const { input, listbox, combobox } = this
     const id = this.id || `d${self.crypto.randomUUID()}`
@@ -122,7 +150,6 @@ class NgSelect extends HTMLElement {
           break
         case 'ArrowDown':
         case 'ArrowUp':
-          console.log('inpout arrow', e.key)
           e.preventDefault()
           this.toggleListbox(true)
           this.focusItem(e.key === 'ArrowDown' ? 'next' : 'previous')
@@ -132,37 +159,9 @@ class NgSelect extends HTMLElement {
 
     input.addEventListener('input', (e) => {
       const value = (e.target as HTMLInputElement).value.toLowerCase()
-
       //open listbox and only show the values that match the input
       this.toggleListbox(true)
-      const items = Array.from(listbox.querySelectorAll('li'))
-
-      // reset the listbox and unwrap any <mark> tags
-      items.forEach((item) => {
-        item.hidden = false
-        item
-          .querySelectorAll('mark')
-          .forEach((EL) => EL.replaceWith(...EL.childNodes))
-      })
-
-      items.forEach((item) => {
-        const hasText = item.innerHTML.toLowerCase().includes(value)
-
-        if (hasText) {
-          item.innerHTML = item.innerHTML.replace(
-            new RegExp(value, 'gi'),
-            (x) => {
-              return `<mark>${x}</mark>`
-            }
-          )
-        } else {
-          item
-            .querySelectorAll('mark')
-            .forEach((EL) => EL.replaceWith(...EL.childNodes))
-        }
-
-        item.hidden = !hasText
-      })
+      this.highlightTextInOptions(value)
     })
 
     input.addEventListener('click', () =>
@@ -203,7 +202,6 @@ class NgSelect extends HTMLElement {
         case 'ArrowDown':
         case 'ArrowUp':
           e.preventDefault()
-          console.log('arrow', e.key)
           this.focusItem(e.key === 'ArrowDown' ? 'next' : 'previous')
           break
         default:
