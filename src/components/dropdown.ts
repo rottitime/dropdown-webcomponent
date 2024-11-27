@@ -12,12 +12,7 @@ template.innerHTML = /* HTML */ `
     <div role="combobox" aria-expanded="false" aria-haspopup="listbox">
       <input type="text" aria-autocomplete="list" autocomplete="off" />
     </div>
-    <ul
-      role="listbox"
-      tabindex="-1"
-      aria-hidden="true"
-      aria-multiselectable="true"
-    ></ul>
+    <ul role="listbox" tabindex="-1" aria-hidden="true"></ul>
   </div>
 `
 
@@ -27,12 +22,17 @@ class NgSelect extends HTMLElement {
   combobox: HTMLDivElement
   tags: HTMLUListElement
   selected: Selected = {}
+  isMultiple: boolean
   onChange: onChangeEvent
 
   constructor() {
     super()
+
     const shadow = this.attachShadow({ mode: 'open' })
     shadow.append(template.content.cloneNode(true))
+    this.isMultiple =
+      this.getAttribute('multiple') === 'true' ||
+      this.getAttribute('multiple') === ''
     this.input = shadow.querySelector('input')!
     this.combobox = shadow.querySelector('[role=combobox]')!
     this.listbox = shadow.querySelector('[role=listbox]')!
@@ -53,18 +53,26 @@ class NgSelect extends HTMLElement {
 
   private setSelected(selected: Selected, remove?: boolean) {
     const key = Object.keys(selected)[0]
-    if (remove) delete this.selected[key]
-    else this.selected = { ...this.selected, ...selected }
 
-    this.input.placeholder = Object.values(this.selected).join(', ')
-    this.listbox
-      .querySelector(`[data-value=${key}]`)
-      ?.setAttribute('aria-selected', (!remove).toString())
-    this.renderTags()
+    if (this.isMultiple) {
+      if (remove) delete this.selected[key]
+      else this.selected = { ...this.selected, ...selected }
+      this.input.placeholder = Object.values(this.selected).join(', ')
+      this.listbox
+        .querySelector(`[data-value=${key}]`)
+        ?.setAttribute('aria-selected', (!remove).toString())
+      this.renderTags()
+    } else {
+      this.selected = selected
+      this.input.value = key
+      this.toggleListbox(false)
+    }
+
     this.onChange(this.selected)
   }
 
   private renderTags() {
+    if (!this.isMultiple) return
     this.tags.innerHTML = ''
     Object.entries(this.selected).forEach(([value, text]) => {
       const tag = document.createElement('li')
@@ -110,10 +118,7 @@ class NgSelect extends HTMLElement {
     input.setAttribute('id', id)
     combobox.before(this.createLabel(labelId))
 
-    this.setAttribute(
-      'aria-multiselectable',
-      String(this.getAttribute('multiple') !== 'false' || null)
-    )
+    listbox.setAttribute('aria-multiselectable', String(this.isMultiple))
     listbox.setAttribute('id', listboxId)
     listbox.setAttribute('aria-labelledby', labelId)
 
