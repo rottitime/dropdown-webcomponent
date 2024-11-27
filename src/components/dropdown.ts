@@ -114,16 +114,24 @@ class NgSelect extends HTMLElement {
     })
 
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        this.toggleListbox(true)
-        this.focusItem('current')
+      switch (e.key) {
+        case 'Enter':
+          e.preventDefault()
+          this.toggleListbox(true)
+          this.focusItem('current')
+          break
+        case 'ArrowDown':
+        case 'ArrowUp':
+          console.log('arrow down')
+          e.preventDefault()
+          this.toggleListbox(true)
+          this.focusItem(e.key === 'ArrowDown' ? 'next' : 'previous')
+          break
       }
     })
 
     input.addEventListener('input', (e) => {
       const value = (e.target as HTMLInputElement).value.toLowerCase()
-      console.log('changing, ', { value })
 
       //open listbox and only show the values that match the input
       this.toggleListbox(true)
@@ -166,11 +174,11 @@ class NgSelect extends HTMLElement {
       const target = e.target as HTMLElement
       if (target.tagName === 'LI') {
         const selected = {
-          [target.getAttribute('data-value') || '']: target.innerHTML,
+          [target.getAttribute('data-value') || '']: target.innerText,
         }
         this.setSelected(
           selected,
-          target.getAttribute('aria-selected') == 'true'
+          target.getAttribute('aria-selected') === 'true'
         )
       }
     })
@@ -194,9 +202,13 @@ class NgSelect extends HTMLElement {
           break
         case 'ArrowDown':
         case 'ArrowUp':
+          console.log('arrow down')
           e.preventDefault()
           this.focusItem(e.key === 'ArrowDown' ? 'next' : 'previous')
           break
+        default:
+          // push the key to the input
+          input.focus()
       }
     })
   }
@@ -208,9 +220,12 @@ class NgSelect extends HTMLElement {
     if (direction === 'next' && index < items.length - 1) index++
     else if (direction === 'previous' && index > 0) index--
     else if (direction === 'current' && index < 0) index = 0
-    items[index].focus()
-    items[index].setAttribute('tabindex', '0')
-    focused?.setAttribute('tabindex', '-1')
+
+    if (items[index]) {
+      items[index]?.focus()
+      items[index].setAttribute('tabindex', '0')
+      focused?.setAttribute('tabindex', '-1')
+    }
   }
 
   connectedCallback() {
