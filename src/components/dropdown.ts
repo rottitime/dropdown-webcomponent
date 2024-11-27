@@ -302,10 +302,10 @@ class NgSelect extends HTMLElement {
     this._internals.setValidity({})
   }
 
-  attributeChangedCallback(_name: string, _oldValue: string, newValue: string) {
-    this._internals.setFormValue(newValue)
-    this.setAttribute('value', newValue)
-  }
+  // attributeChangedCallback(_name: string, _oldValue: string, newValue: string) {
+  //   this._internals.setFormValue(newValue)
+  //   this.setAttribute('value', newValue)
+  // }
 }
 
 customElements.define('ng-select', NgSelect)
